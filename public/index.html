@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shivam Link Protector - Protect Your Links</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="logo">
+          <span class="logo-icon">🛡️</span>
+          <span class="logo-text">Shivam Link Protector</span>
+        </div>
+        <nav class="nav">
+          <a href="#" class="nav-link active" data-tab="shorten">Protect</a>
+          <a href="#" class="nav-link" data-tab="dashboard">Dashboard</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Shortener Section -->
+      <section id="shorten-section" class="section active">
+        <div class="container">
+          <div class="hero">
+            <h1 class="hero-title">Protect Your Links</h1>
+            <p class="hero-subtitle">Hide your original URLs from visitors - they won't see or copy the real link</p>
+          </div>
+
+          <!-- URL Shortener Form -->
+          <div class="shortener-card">
+            <form id="shorten-form" class="shortener-form">
+              <div class="input-group">
+                <div class="input-wrapper">
+                  <span class="input-icon">🔐</span>
+                  <input 
+                    type="text" 
+                    id="url-input" 
+                    class="url-input" 
+                    placeholder="Paste your URL to protect..."
+                    autocomplete="off"
+                    required
+                  >
+                </div>
+                <button type="submit" class="btn btn-primary shorten-btn">
+                  <span class="btn-text">Protect Link</span>
+                  <span class="btn-loader"></span>
+                </button>
+              </div>
+              
+              <!-- Advanced Options Toggle -->
+              <div class="advanced-toggle">
+                <button type="button" class="toggle-btn" id="advanced-toggle">
+                  <span>Advanced Options</span>
+                  <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Advanced Options -->
+              <div class="advanced-options" id="advanced-options">
+                <div class="option-group">
+                  <label for="custom-alias">Custom Alias (optional)</label>
+                  <div class="alias-input-wrapper">
+                    <span class="alias-prefix">shivam.link/</span>
+                    <input 
+                      type="text" 
+                      id="custom-alias" 
+                      class="alias-input" 
+                      placeholder="my-custom-link"
+                      pattern="[a-zA-Z0-9_-]+"
+                      title="Only letters, numbers, hyphens and underscores allowed"
+                    >
+                  </div>
+                </div>
+                <div class="option-group">
+                  <label for="expiration">Expiration Time (optional)</label>
+                  <select id="expiration" class="expiration-select">
+                    <option value="">Never</option>
+                    <option value="1h">1 Hour</option>
+                    <option value="24h">24 Hours</option>
+                    <option value="7d">7 Days</option>
+                    <option value="30d">30 Days</option>
+                  </select>
+                </div>
+              </div>
+            </form>
+
+            <!-- Result Section -->
+            <div class="result-section" id="result-section">
+              <div class="result-card">
+                <div class="result-header">
+                  <span class="result-label">Your protected URL</span>
+                </div>
+                <div class="result-content">
+                  <input type="text" id="result-url" class="result-input" readonly>
+                  <button class="btn btn-copy" id="copy-btn">
+                    <span class="copy-icon">📋</span>
+                    <span class="copy-text">Copy</span>
+                  </button>
+                </div>
+                <div class="result-actions">
+                  <a href="#" id="stats-link" class="action-link" target="_blank">
+                    <span>📊</span> View Analytics
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Features Section -->
+          <div class="features">
+            <div class="feature-card">
+              <div class="feature-icon">🔒</div>
+              <h3>URL Hidden</h3>
+              <p>Original URL is completely hidden from visitors in browser address bar</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🛡️</div>
+              <h3>Secure Protection</h3>
+              <p>Prevents copying, right-click, and developer tools access</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">📈</div>
+              <h3>Analytics</h3>
+              <p>Track clicks and monitor your link performance</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dashboard Section -->
+      <section id="dashboard-section" class="section">
+        <div class="container">
+          <div class="dashboard-header">
+            <h2>Link Dashboard</h2>
+            <p>Manage and monitor all your shortened URLs</p>
+          </div>
+
+          <div class="dashboard-controls">
+            <div class="search-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search-input" class="search-input" placeholder="Search URLs...">
+            </div>
+            <button class="btn btn-secondary" id="refresh-btn">
+              <span>🔄</span> Refresh
+            </button>
+          </div>
+
+          <div class="urls-table-wrapper">
+            <table class="urls-table" id="urls-table">
+              <thead>
+                <tr>
+                  <th>Short URL</th>
+                  <th>Original URL</th>
+                  <th>Clicks</th>
+                  <th>Created</th>
+                  <th>Expires</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="urls-tbody">
+                <!-- URLs will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="pagination">
+            <!-- Pagination will be loaded here -->
+          </div>
+
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>No URLs yet</h3>
+            <p>Create your first short URL to get started!</p>
+            <a href="#" class="btn btn-primary" data-tab="shorten">Create Short URL</a>
+          </div>
+
+          <div class="loading-state" id="loading-state">
+            <div class="loader"></div>
+            <p>Loading URLs...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats Modal -->
+      <div class="modal" id="stats-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Link Analytics</h3>
+            <button class="modal-close" id="modal-close">&times;</button>
+          </div>
+          <div class="modal-body" id="modal-body">
+            <!-- Stats will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>2026 Made By Shivam</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span class="toast-icon"></span>
+    <span class="toast-message"></span>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
