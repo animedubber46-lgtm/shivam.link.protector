@@ -1,21 +1,60 @@
 const express = require('express');
 const router = express.Router();
 const Url = require('../models/Url');
-const { isUsingMongoDB, inMemoryUrlOps } = require('../config/database');
+const { isUsingMongoDB, inMemoryUrlOps, inMemoryUserOps } = require('../config/database');
 const { generateShortCode, validateCustomAlias, isAliasAvailable } = require('../utils/shortCodeGenerator');
 const { validateUrl } = require('../utils/urlValidator');
 
 // Helper function to get the appropriate model/methods
 const getDb = () => isUsingMongoDB() ? Url : inMemoryUrlOps;
+const getUserDb = () => isUsingMongoDB() ? require('../models/User') : inMemoryUserOps;
+
+// Middleware to check authentication
+const requireAuth = async (req, res, next) => {
+  const userId = req.cookies.userId;
+  const rememberToken = req.cookies.rememberToken;
+
+  if (!userId && !rememberToken) {
+    return res.status(401).json({
+      success: false,
+      error: 'Please login to continue'
+    });
+  }
+
+  try {
+    let user;
+    if (userId) {
+      user = await getUserDb().findById(userId);
+    } else if (rememberToken) {
+      user = await getUserDb().findOne({ rememberToken });
+    }
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: 'User not found. Please login again.'
+      });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication failed. Please login again.'
+    });
+  }
+};
 
 /**
  * @route   POST /api/shorten
  * @desc    Create a shortened URL
- * @access  Public
+ * @access  Private (requires authentication)
  */
-router.post('/shorten', async (req, res) => {
+router.post('/shorten', requireAuth, async (req, res) => {
   try {
     const { url, customAlias, expiresIn } = req.body;
+    const userId = req.user._id;
 
     // Validate URL
     const urlValidation = validateUrl(url);
@@ -73,6 +112,7 @@ router.post('/shorten', async (req, res) => {
       const urlData = {
         originalUrl: urlValidation.normalizedUrl,
         shortCode,
+        userId,
         expiresAt
       };
       // Only include customAlias if provided
@@ -86,6 +126,7 @@ router.post('/shorten', async (req, res) => {
         originalUrl: urlValidation.normalizedUrl,
         shortCode,
         customAlias: customAlias || null,
+        userId,
         expiresAt
       });
     }
@@ -168,26 +209,27 @@ router.get('/stats/:code', async (req, res) => {
 
 /**
  * @route   GET /api/urls
- * @desc    Get all URLs (admin dashboard)
- * @access  Public
+ * @desc    Get all URLs for the authenticated user
+ * @access  Private (requires authentication)
  */
-router.get('/urls', async (req, res) => {
+router.get('/urls', requireAuth, async (req, res) => {
   try {
     const { page = 1, limit = 10, sort = '-createdAt' } = req.query;
+    const userId = req.user._id;
     const db = getDb();
 
     let urls, count;
     
     if (isUsingMongoDB()) {
-      urls = await Url.find()
+      urls = await Url.find({ userId })
         .sort(sort)
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec();
-      count = await Url.countDocuments();
+      count = await Url.countDocuments({ userId });
     } else {
-      urls = await db.find();
-      count = await db.countDocuments();
+      urls = await db.findByUserId(userId);
+      count = await db.countByUserId(userId);
       // Simple pagination for in-memory
       const start = (page - 1) * limit;
       urls = urls.slice(start, start + limit);
@@ -213,26 +255,33 @@ router.get('/urls', async (req, res) => {
 
 /**
  * @route   DELETE /api/urls/:id
- * @desc    Delete a URL
- * @access  Public
+ * @desc    Delete a URL (only if owned by user)
+ * @access  Private (requires authentication)
  */
-router.delete('/urls/:id', async (req, res) => {
+router.delete('/urls/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user._id;
     const db = getDb();
 
     let url;
     if (isUsingMongoDB()) {
-      url = await Url.findByIdAndDelete(id);
+      url = await Url.findOne({ _id: id, userId });
+      if (!url) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'URL not found or you do not have permission to delete it' 
+        });
+      }
+      await Url.findByIdAndDelete(id);
     } else {
       url = await db.findByIdAndDelete(id);
-    }
-
-    if (!url) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'URL not found' 
-      });
+      if (!url || url.userId !== userId) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'URL not found or you do not have permission to delete it' 
+        });
+      }
     }
 
     res.json({

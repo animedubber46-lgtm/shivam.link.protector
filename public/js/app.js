@@ -1,5 +1,5 @@
 /**
- * LinkSnap - URL Shortener Frontend Application
+ * Shivam Link Protector - URL Shortener Frontend Application
  */
 
 // API Base URL
@@ -42,12 +42,82 @@ const elements = {
   modalBody: document.getElementById('modal-body'),
   
   // Toast
-  toast: document.getElementById('toast')
+  toast: document.getElementById('toast'),
+  
+  // Auth elements
+  userInfo: document.getElementById('user-info'),
+  userEmail: document.getElementById('user-email'),
+  logoutBtn: document.getElementById('logout-btn'),
+  loginLink: document.getElementById('login-link')
 };
 
 // State
 let currentPage = 1;
 let totalPages = 1;
+let currentUser = null;
+
+// ========================================
+// Authentication
+// ========================================
+
+async function checkAuth() {
+  try {
+    const response = await fetch(`${API_BASE}/auth/me`);
+    const data = await response.json();
+    
+    if (data.success && data.data.user) {
+      currentUser = data.data.user;
+      updateAuthUI();
+      return true;
+    } else {
+      // Redirect to login if not authenticated
+      window.location.href = 'login.html';
+      return false;
+    }
+  } catch (error) {
+    console.error('Auth check failed:', error);
+    window.location.href = 'login.html';
+    return false;
+  }
+}
+
+function updateAuthUI() {
+  if (currentUser) {
+    // Update user info display
+    if (elements.userInfo) {
+      elements.userInfo.style.display = 'flex';
+    }
+    if (elements.userEmail) {
+      elements.userEmail.textContent = currentUser.email;
+    }
+    if (elements.loginLink) {
+      elements.loginLink.style.display = 'none';
+    }
+  } else {
+    if (elements.userInfo) {
+      elements.userInfo.style.display = 'none';
+    }
+    if (elements.loginLink) {
+      elements.loginLink.style.display = 'block';
+    }
+  }
+}
+
+async function logout() {
+  try {
+    await fetch(`${API_BASE}/auth/logout`, {
+      method: 'POST'
+    });
+    
+    showToast('Logged out successfully');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 1000);
+  } catch (error) {
+    console.error('Logout failed:', error);
+    showToast('Failed to logout', 'error');
+  }
+}
 
 // ========================================
 // Utility Functions
@@ -152,10 +222,12 @@ function initShortener() {
   elements.shortenForm.addEventListener('submit', handleShorten);
   
   // Advanced options toggle
-  elements.advancedToggle.addEventListener('click', () => {
-    elements.advancedToggle.classList.toggle('active');
-    elements.advancedOptions.classList.toggle('show');
-  });
+  if (elements.advancedToggle) {
+    elements.advancedToggle.addEventListener('click', () => {
+      elements.advancedToggle.classList.toggle('active');
+      elements.advancedOptions.classList.toggle('show');
+    });
+  }
   
   // Copy button
   elements.copyBtn.addEventListener('click', handleCopy);
@@ -207,7 +279,14 @@ async function handleShorten(e) {
       elements.customAlias.value = '';
       elements.expiration.value = '';
     } else {
-      showToast(data.error || 'Failed to shorten URL', 'error');
+      if (data.error === 'Please login to continue') {
+        showToast('Please login to continue', 'error');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1500);
+      } else {
+        showToast(data.error || 'Failed to shorten URL', 'error');
+      }
     }
   } catch (error) {
     console.error('Error shortening URL:', error);
@@ -252,18 +331,22 @@ async function handleCopy() {
 function initDashboard() {
   // Search functionality
   let searchTimeout;
-  elements.searchInput.addEventListener('input', () => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      currentPage = 1;
-      loadUrls();
-    }, 300);
-  });
+  if (elements.searchInput) {
+    elements.searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        currentPage = 1;
+        loadUrls();
+      }, 300);
+    });
+  }
   
   // Refresh button
-  elements.refreshBtn.addEventListener('click', () => {
-    loadUrls();
-  });
+  if (elements.refreshBtn) {
+    elements.refreshBtn.addEventListener('click', () => {
+      loadUrls();
+    });
+  }
 }
 
 async function loadUrls() {
@@ -291,6 +374,16 @@ async function loadUrls() {
       // Render pagination
       renderPagination(data.pagination);
       
+      elements.loadingState.classList.remove('show');
+    } else {
+      if (data.error === 'Please login to continue') {
+        showToast('Session expired. Please login again.', 'error');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1500);
+      } else {
+        showToast(data.error || 'Failed to load URLs', 'error');
+      }
       elements.loadingState.classList.remove('show');
     }
   } catch (error) {
@@ -454,7 +547,14 @@ async function deleteUrl(id) {
       showToast('URL deleted successfully');
       loadUrls();
     } else {
-      showToast(data.error || 'Failed to delete URL', 'error');
+      if (data.error === 'Please login to continue') {
+        showToast('Session expired. Please login again.', 'error');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1500);
+      } else {
+        showToast(data.error || 'Failed to delete URL', 'error');
+      }
     }
   } catch (error) {
     console.error('Error deleting URL:', error);
@@ -467,19 +567,23 @@ async function deleteUrl(id) {
 // ========================================
 
 function initModal() {
-  elements.modalClose.addEventListener('click', () => {
-    elements.statsModal.classList.remove('show');
-  });
-  
-  elements.statsModal.addEventListener('click', (e) => {
-    if (e.target === elements.statsModal) {
+  if (elements.modalClose) {
+    elements.modalClose.addEventListener('click', () => {
       elements.statsModal.classList.remove('show');
-    }
-  });
+    });
+  }
+  
+  if (elements.statsModal) {
+    elements.statsModal.addEventListener('click', (e) => {
+      if (e.target === elements.statsModal) {
+        elements.statsModal.classList.remove('show');
+      }
+    });
+  }
   
   // Close on escape key
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' && elements.statsModal) {
       elements.statsModal.classList.remove('show');
     }
   });
@@ -489,18 +593,24 @@ function initModal() {
 // Initialize Application
 // ========================================
 
-document.addEventListener('DOMContentLoaded', () => {
-  initNavigation();
-  initShortener();
-  initDashboard();
-  initModal();
+document.addEventListener('DOMContentLoaded', async () => {
+  // Check authentication first
+  const isAuthed = await checkAuth();
   
-  // Focus URL input on load
-  elements.urlInput.focus();
+  if (isAuthed) {
+    initNavigation();
+    initShortener();
+    initDashboard();
+    initModal();
+    
+    // Focus URL input on load
+    if (elements.urlInput) {
+      elements.urlInput.focus();
+    }
+    
+    // Setup logout button
+    if (elements.logoutBtn) {
+      elements.logoutBtn.addEventListener('click', logout);
+    }
+  }
 });
-
-// Make functions globally available
-window.goToPage = goToPage;
-window.copyShortUrl = copyShortUrl;
-window.showStats = showStats;
-window.deleteUrl = deleteUrl;

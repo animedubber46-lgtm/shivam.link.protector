@@ -16,6 +16,11 @@ const urlSchema = new mongoose.Schema({
     sparse: true,
     default: undefined
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
   clicks: {
     type: Number,
     default: 0

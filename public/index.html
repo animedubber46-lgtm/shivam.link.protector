@@ -22,6 +22,10 @@
           <a href="#" class="nav-link active" data-tab="shorten">Protect</a>
           <a href="#" class="nav-link" data-tab="dashboard">Dashboard</a>
         </nav>
+        <div class="user-info" id="user-info" style="display: none;">
+          <span class="user-email" id="user-email"></span>
+          <button class="btn-logout" id="logout-btn">Logout</button>
+        </div>
       </div>
     </header>
 
@@ -180,9 +184,9 @@
 
           <div class="empty-state" id="empty-state">
             <div class="empty-icon">📭</div>
-            <h3>No URLs yet</h3>
-            <p>Create your first short URL to get started!</p>
-            <a href="#" class="btn btn-primary" data-tab="shorten">Create Short URL</a>
+            <h3>No links yet</h3>
+            <p>Create your first protected link to get started!</p>
+            <a href="#" class="btn btn-primary" data-tab="shorten">Create Protected Link</a>
           </div>
 
           <div class="loading-state" id="loading-state">

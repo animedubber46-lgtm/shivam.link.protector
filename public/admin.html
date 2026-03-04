@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Shivam Link Protector</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .admin-header {
+      background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .admin-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .admin-logo-icon {
+      font-size: 1.5rem;
+    }
+    
+    .admin-logo-text {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+    
+    .admin-badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .admin-nav {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    .admin-nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    
+    .admin-nav-link:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+    
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-logout:hover {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .admin-main {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .admin-welcome {
+      margin-bottom: 2rem;
+    }
+    
+    .admin-welcome h1 {
+      font-size: 1.75rem;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .admin-welcome p {
+      color: var(--text-secondary);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--border-color);
+    }
+    
+    .stat-card-icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .stat-card-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .stat-card-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .admin-section {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+    }
+    
+    .admin-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .admin-section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .btn-generate {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-generate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    
+    .btn-generate:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .referral-code-display {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    
+    .referral-code-display.show {
+      display: block;
+    }
+    
+    .referral-code-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    
+    .referral-code-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary);
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
+    
+    .referral-code-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    
+    .btn-copy-code {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-copy-code:hover {
+      background: var(--primary-dark);
+    }
+    
+    .codes-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .codes-table th,
+    .codes-table td {
+      padding: 0.875rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .codes-table th {
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .codes-table td {
+      color: var(--text-primary);
+    }
+    
+    .code-badge {
+      font-family: monospace;
+      background: var(--bg-secondary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .status-badge.used {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+    
+    .status-badge.available {
+      background: rgba(34, 197, 94, 0.1);
+      color: #22c55e;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary);
+    }
+    
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    .loading-state {
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .loader {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Admin Header -->
+    <header class="admin-header">
+      <div class="admin-logo">
+        <span class="admin-logo-icon">🛡️</span>
+        <span class="admin-logo-text">Shivam Link Protector</span>
+        <span class="admin-badge">Admin</span>
+      </div>
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-link">View Site</a>
+        <button class="btn-logout" id="logout-btn">Logout</button>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="admin-welcome">
+        <h1>Admin Dashboard</h1>
+        <p>Manage referral codes and view statistics</p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon">🎫</div>
+          <div class="stat-card-value" id="total-codes">-</div>
+          <div class="stat-card-label">Total Referral Codes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">✅</div>
+          <div class="stat-card-value" id="available-codes">-</div>
+          <div class="stat-card-label">Available Codes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">🔗</div>
+          <div class="stat-card-value" id="total-urls">-</div>
+          <div class="stat-card-label">Total URLs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">🖱️</div>
+          <div class="stat-card-value" id="total-clicks">-</div>
+          <div class="stat-card-label">Total Clicks</div>
+        </div>
+      </div>
+
+      <!-- Generate Referral Code Section -->
+      <div class="admin-section">
+        <div class="admin-section-header">
+          <h2 class="admin-section-title">Generate Referral Code</h2>
+        </div>
+        
+        <button class="btn-generate" id="generate-btn">
+          <span class="btn-text">Generate New Code</span>
+        </button>
+        
+        <div class="referral-code-display" id="code-display">
+          <div class="referral-code-label">New Referral Code:</div>
+          <div class="referral-code-value" id="new-code"></div>
+          <div class="referral-code-actions">
+            <button class="btn-copy-code" id="copy-code-btn">📋 Copy Code</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Referral Codes Table -->
+      <div class="admin-section">
+        <div class="admin-section-header">
+          <h2 class="admin-section-title">All Referral Codes</h2>
+        </div>
+        
+        <div class="loading-state" id="loading-state">
+          <div class="loader"></div>
+          <p>Loading referral codes...</p>
+        </div>
+        
+        <div class="empty-state" id="empty-state" style="display: none;">
+          <div class="empty-icon">📭</div>
+          <h3>No referral codes yet</h3>
+          <p>Generate your first referral code above!</p>
+        </div>
+        
+        <table class="codes-table" id="codes-table" style="display: none;">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Used At</th>
+            </tr>
+          </thead>
+          <tbody id="codes-tbody">
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span class="toast-icon"></span>
+    <span class="toast-message"></span>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+    
+    // DOM Elements
+    const logoutBtn = document.getElementById('logout-btn');
+    const generateBtn = document.getElementById('generate-btn');
+    const codeDisplay = document.getElementById('code-display');
+    const newCodeEl = document.getElementById('new-code');
+    const copyCodeBtn = document.getElementById('copy-code-btn');
+    const statsGrid = document.getElementById('stats-grid');
+    const totalCodesEl = document.getElementById('total-codes');
+    const availableCodesEl = document.getElementById('available-codes');
+    const totalUrlsEl = document.getElementById('total-urls');
+    const totalClicksEl = document.getElementById('total-clicks');
+    const loadingState = document.getElementById('loading-state');
+    const emptyState = document.getElementById('empty-state');
+    const codesTable = document.getElementById('codes-table');
+    const codesTbody = document.getElementById('codes-tbody');
+    const toast = document.getElementById('toast');
+    
+    // Show toast
+    function showToast(message, type = 'success') {
+      const icon = toast.querySelector('.toast-icon');
+      const msg = toast.querySelector('.toast-message');
+      
+      icon.textContent = type === 'success' ? '✓' : '✕';
+      msg.textContent = message;
+      
+      toast.className = `toast ${type}`;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Format date
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    
+    // Check admin auth
+    async function checkAuth() {
+      try {
+        const response = await fetch(`${API_BASE}/auth/check`);
+        const data = await response.json();
+        
+        if (!data.isAdmin) {
+          window.location.href = 'admin-login.html';
+          return false;
+        }
+        return true;
+      } catch (error) {
+        window.location.href = 'admin-login.html';
+        return false;
+      }
+    }
+    
+    // Load stats
+    async function loadStats() {
+      try {
+        const response = await fetch(`${API_BASE}/admin/stats`);
+        const data = await response.json();
+        
+        if (data.success) {
+          totalCodesEl.textContent = data.data.totalReferralCodes;
+          availableCodesEl.textContent = data.data.availableReferralCodes;
+          totalUrlsEl.textContent = data.data.totalUrls;
+          totalClicksEl.textContent = data.data.totalClicks;
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+    
+    // Load referral codes
+    async function loadCodes() {
+      loadingState.style.display = 'block';
+      emptyState.style.display = 'none';
+      codesTable.style.display = 'none';
+      
+      try {
+        const response = await fetch(`${API_BASE}/admin/referral-codes`);
+        const data = await response.json();
+        
+        loadingState.style.display = 'none';
+        
+        if (data.success && data.data.length > 0) {
+          codesTable.style.display = 'table';
+          renderCodes(data.data);
+        } else {
+          emptyState.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error loading codes:', error);
+        loadingState.style.display = 'none';
+        emptyState.style.display = 'block';
+      }
+    }
+    
+    // Render codes table
+    function renderCodes(codes) {
+      codesTbody.innerHTML = codes.map(code => `
+        <tr>
+          <td><span class="code-badge">${code.code}</span></td>
+          <td>
+            <span class="status-badge ${code.used ? 'used' : 'available'}">
+              ${code.used ? 'Used' : 'Available'}
+            </span>
+          </td>
+          <td>${formatDate(code.createdAt)}</td>
+          <td>${code.used ? formatDate(code.usedAt) : '-'}</td>
+        </tr>
+      `).join('');
+    }
+    
+    // Generate new code
+    generateBtn.addEventListener('click', async () => {
+      generateBtn.disabled = true;
+      generateBtn.querySelector('.btn-text').textContent = 'Generating...';
+      
+      try {
+        const response = await fetch(`${API_BASE}/admin/referral-code`, {
+          method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          newCodeEl.textContent = data.data.code;
+          codeDisplay.classList.add('show');
+          showToast('Referral code generated!');
+          loadCodes();
+          loadStats();
+        } else {
+          showToast(data.error || 'Failed to generate code', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to generate code', 'error');
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.querySelector('.btn-text').textContent = 'Generate New Code';
+      }
+    });
+    
+    // Copy code
+    copyCodeBtn.addEventListener('click', async () => {
+      const code = newCodeEl.textContent;
+      
+      try {
+        await navigator.clipboard.writeText(code);
+        showToast('Code copied to clipboard!');
+        
+        copyCodeBtn.textContent = '✓ Copied!';
+        setTimeout(() => {
+          copyCodeBtn.textContent = '📋 Copy Code';
+        }, 2000);
+      } catch (error) {
+        showToast('Failed to copy code', 'error');
+      }
+    });
+    
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await fetch(`${API_BASE}/auth/logout`, {
+          method: 'POST'
+        });
+        
+        window.location.href = 'admin-login.html';
+      } catch (error) {
+        showToast('Failed to logout', 'error');
+      }
+    });
+    
+    // Initialize
+    async function init() {
+      const isAuth = await checkAuth();
+      if (isAuth) {
+        loadStats();
+        loadCodes();
+      }
+    }
+    
+    init();
+  </script>
+</body>
+</html>

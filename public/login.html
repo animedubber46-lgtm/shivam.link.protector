@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Shivam Link Protector</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    
+    .auth-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .auth-logo {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    .auth-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .auth-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      padding: 4px;
+    }
+    
+    .auth-tab {
+      flex: 1;
+      padding: 0.75rem;
+      text-align: center;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+    }
+    
+    .auth-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .auth-form {
+      display: none;
+    }
+    
+    .auth-form.active {
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .checkbox-input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+    
+    .checkbox-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .btn-auth {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-auth:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn-auth:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .auth-footer-text {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .auth-footer-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .auth-footer-link:hover {
+      text-decoration: underline;
+    }
+    
+    .admin-link {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+    
+    .admin-link:hover {
+      color: var(--primary);
+    }
+    
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .back-link:hover {
+      color: var(--primary);
+    }
+    
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+    
+    .success-message {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #22c55e;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">🛡️</div>
+        <h1 class="auth-title">Shivam Link Protector</h1>
+        <p class="auth-subtitle">Sign in to manage your protected links</p>
+      </div>
+      
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-tab="login">Sign In</div>
+        <div class="auth-tab" data-tab="signup">Sign Up</div>
+      </div>
+      
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form active">
+        <div class="error-message" id="login-error"></div>
+        <div class="success-message" id="login-success"></div>
+        
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email Address</label>
+          <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+        </div>
+        
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="remember-me" class="checkbox-input">
+            <label for="remember-me" class="checkbox-label">Remember me</label>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-auth" id="login-btn">
+          <span class="btn-text">Sign In</span>
+        </button>
+        
+        <div class="auth-footer">
+          <p class="auth-footer-text">
+            Don't have an account? <a href="#" class="auth-footer-link" data-tab="signup">Sign up</a>
+          </p>
+        </div>
+      </form>
+      
+      <!-- Signup Form -->
+      <form id="signup-form" class="auth-form">
+        <div class="error-message" id="signup-error"></div>
+        <div class="success-message" id="signup-success"></div>
+        
+        <div class="form-group">
+          <label class="form-label" for="signup-email">Email Address</label>
+          <input type="email" id="signup-email" class="form-input" placeholder="Enter your email" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="signup-password">Password</label>
+          <input type="password" id="signup-password" class="form-input" placeholder="Create a password (min 6 characters)" required minlength="6">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="signup-referral">Referral Code</label>
+          <input type="text" id="signup-referral" class="form-input" placeholder="Enter your 4-word referral code" required>
+          <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+            Example: alpha-bravo-charlie-delta
+          </small>
+        </div>
+        
+        <button type="submit" class="btn-auth" id="signup-btn">
+          <span class="btn-text">Create Account</span>
+        </button>
+        
+        <div class="auth-footer">
+          <p class="auth-footer-text">
+            Already have an account? <a href="#" class="auth-footer-link" data-tab="login">Sign in</a>
+          </p>
+        </div>
+      </form>
+      
+      <a href="admin-login.html" class="admin-link">Admin Login →</a>
+      <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+  </div>
+  
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span class="toast-icon"></span>
+    <span class="toast-message"></span>
+  </div>
+  
+  <script>
+    const API_BASE = '/api';
+    
+    // DOM Elements
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const authForms = document.querySelectorAll('.auth-form');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const loginError = document.getElementById('login-error');
+    const loginSuccess = document.getElementById('login-success');
+    const signupError = document.getElementById('signup-error');
+    const signupSuccess = document.getElementById('signup-success');
+    const toast = document.getElementById('toast');
+    
+    // Tab switching
+    authTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetTab = tab.dataset.tab;
+        
+        // Update tabs
+        authTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === targetTab));
+        
+        // Update forms
+        authForms.forEach(f => f.classList.toggle('active', f.id === `${targetTab}-form`));
+        
+        // Clear messages
+        loginError.style.display = 'none';
+        loginSuccess.style.display = 'none';
+        signupError.style.display = 'none';
+        signupSuccess.style.display = 'none';
+      });
+    });
+    
+    // Footer links
+    document.querySelectorAll('.auth-footer-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetTab = link.dataset.tab;
+        
+        authTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === targetTab));
+        authForms.forEach(f => f.classList.toggle('active', f.id === `${targetTab}-form`));
+        
+        loginError.style.display = 'none';
+        loginSuccess.style.display = 'none';
+        signupError.style.display = 'none';
+        signupSuccess.style.display = 'none';
+      });
+    });
+    
+    // Show toast
+    function showToast(message, type = 'success') {
+      const icon = toast.querySelector('.toast-icon');
+      const msg = toast.querySelector('.toast-message');
+      
+      icon.textContent = type === 'success' ? '✓' : '✕';
+      msg.textContent = message;
+      
+      toast.className = `toast ${type}`;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Login form submission
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const rememberMe = document.getElementById('remember-me').checked;
+      
+      loginError.style.display = 'none';
+      loginSuccess.style.display = 'none';
+      
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.querySelector('.btn-text').textContent = 'Signing in...';
+      
+      try {
+        const response = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password, rememberMe })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          loginSuccess.textContent = data.message;
+          loginSuccess.style.display = 'block';
+          showToast('Login successful! Redirecting...');
+          
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1000);
+        } else {
+          loginError.textContent = data.error;
+          loginError.style.display = 'block';
+        }
+      } catch (error) {
+        loginError.textContent = 'Failed to connect to server';
+        loginError.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('.btn-text').textContent = 'Sign In';
+      }
+    });
+    
+    // Signup form submission
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const referralCode = document.getElementById('signup-referral').value.trim();
+      
+      signupError.style.display = 'none';
+      signupSuccess.style.display = 'none';
+      
+      const btn = document.getElementById('signup-btn');
+      btn.disabled = true;
+      btn.querySelector('.btn-text').textContent = 'Creating account...';
+      
+      try {
+        const response = await fetch(`${API_BASE}/auth/signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password, referralCode })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          signupSuccess.textContent = data.message;
+          signupSuccess.style.display = 'block';
+          showToast('Account created successfully!');
+          
+          // Clear form
+          signupForm.reset();
+          
+          // Switch to login after 2 seconds
+          setTimeout(() => {
+            authTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === 'login'));
+            authForms.forEach(f => f.classList.toggle('active', f.id === 'login-form'));
+            signupSuccess.style.display = 'none';
+          }, 2000);
+        } else {
+          signupError.textContent = data.error;
+          signupError.style.display = 'block';
+        }
+      } catch (error) {
+        signupError.textContent = 'Failed to connect to server';
+        signupError.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('.btn-text').textContent = 'Create Account';
+      }
+    });
+    
+    // Check if already logged in
+    async function checkAuth() {
+      try {
+        const response = await fetch(`${API_BASE}/auth/check`);
+        const data = await response.json();
+        
+        if (data.authenticated) {
+          window.location.href = 'index.html';
+        }
+      } catch (error) {
+        // Not logged in, stay on page
+      }
+    }
+    
+    checkAuth();
+  </script>
+</body>
+</html>

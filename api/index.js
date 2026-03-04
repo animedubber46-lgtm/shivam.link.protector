@@ -2,10 +2,13 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 const { connectDB } = require('../config/database');
 const urlRoutes = require('../routes/urlRoutes');
 const redirectRoutes = require('../routes/redirectRoutes');
 const proxyRoutes = require('../routes/proxyRoutes');
+const authRoutes = require('../routes/authRoutes');
+const adminRoutes = require('../routes/adminRoutes');
 
 const app = express();
 
@@ -13,11 +16,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '../public')));
 
 // API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api', urlRoutes);
 
 // Proxy routes (for hiding original URL)
