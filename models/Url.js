@@ -17,8 +17,7 @@ const urlSchema = new mongoose.Schema({
     default: undefined
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     default: null
   },
   clicks: {
@@ -39,7 +38,6 @@ const urlSchema = new mongoose.Schema({
   }
 });
 
-// Check if URL is expired
 urlSchema.methods.isExpired = function() {
   if (!this.expiresAt) return false;
   return new Date() > this.expiresAt;

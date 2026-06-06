@@ -13,6 +13,17 @@ const getUserDb = () => isUsingMongoDB() ? require('../models/User') : inMemoryU
 const requireAuth = async (req, res, next) => {
   const userId = req.cookies.userId;
   const rememberToken = req.cookies.rememberToken;
+  const isAdminCookie = req.cookies.isAdmin;
+
+  // Check for admin cookie
+  if (isAdminCookie === 'true' && userId === 'admin') {
+    req.user = {
+      _id: 'admin',
+      email: 'admin@shivam.link',
+      isAdmin: true
+    };
+    return next();
+  }
 
   if (!userId && !rememberToken) {
     return res.status(401).json({
@@ -221,16 +232,25 @@ router.get('/urls', requireAuth, async (req, res) => {
     let urls, count;
     
     if (isUsingMongoDB()) {
-      urls = await Url.find({ userId })
-        .sort(sort)
-        .limit(limit * 1)
-        .skip((page - 1) * limit)
-        .exec();
-      count = await Url.countDocuments({ userId });
+      // Admin user has special string ID, need to handle differently
+      if (userId === 'admin') {
+        urls = await Url.find({})
+          .sort(sort)
+          .limit(limit * 1)
+          .skip((page - 1) * limit)
+          .exec();
+        count = await Url.countDocuments({});
+      } else {
+        urls = await Url.find({ userId })
+          .sort(sort)
+          .limit(limit * 1)
+          .skip((page - 1) * limit)
+          .exec();
+        count = await Url.countDocuments({ userId });
+      }
     } else {
       urls = await db.findByUserId(userId);
       count = await db.countByUserId(userId);
-      // Simple pagination for in-memory
       const start = (page - 1) * limit;
       urls = urls.slice(start, start + limit);
     }
@@ -266,17 +286,29 @@ router.delete('/urls/:id', requireAuth, async (req, res) => {
 
     let url;
     if (isUsingMongoDB()) {
-      url = await Url.findOne({ _id: id, userId });
-      if (!url) {
-        return res.status(404).json({ 
-          success: false, 
-          error: 'URL not found or you do not have permission to delete it' 
-        });
+      // Admin can delete any URL
+      if (userId === 'admin') {
+        url = await Url.findById(id);
+        if (!url) {
+          return res.status(404).json({ 
+            success: false, 
+            error: 'URL not found' 
+          });
+        }
+        await Url.findByIdAndDelete(id);
+      } else {
+        url = await Url.findOne({ _id: id, userId });
+        if (!url) {
+          return res.status(404).json({ 
+            success: false, 
+            error: 'URL not found or you do not have permission to delete it' 
+          });
+        }
+        await Url.findByIdAndDelete(id);
       }
-      await Url.findByIdAndDelete(id);
     } else {
       url = await db.findByIdAndDelete(id);
-      if (!url || url.userId !== userId) {
+      if (!url || (url.userId !== userId && userId !== 'admin')) {
         return res.status(404).json({ 
           success: false, 
           error: 'URL not found or you do not have permission to delete it' 

@@ -62,7 +62,9 @@ let currentUser = null;
 
 async function checkAuth() {
   try {
-    const response = await fetch(`${API_BASE}/auth/me`);
+    const response = await fetch(`${API_BASE}/auth/me`, {
+      credentials: 'include'
+    });
     const data = await response.json();
     
     if (data.success && data.data.user) {
@@ -106,7 +108,8 @@ function updateAuthUI() {
 async function logout() {
   try {
     await fetch(`${API_BASE}/auth/logout`, {
-      method: 'POST'
+      method: 'POST',
+      credentials: 'include'
     });
     
     showToast('Logged out successfully');
@@ -255,6 +258,7 @@ async function handleShorten(e) {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({
         url,
         customAlias: customAlias || undefined,
@@ -356,7 +360,9 @@ async function loadUrls() {
   elements.urlsTbody.innerHTML = '';
   
   try {
-    const response = await fetch(`${API_BASE}/urls?page=${currentPage}`);
+    const response = await fetch(`${API_BASE}/urls?page=${currentPage}`, {
+      credentials: 'include'
+    });
     const data = await response.json();
     
     if (data.success) {
@@ -478,7 +484,9 @@ async function copyShortUrl(code) {
 
 async function showStats(code) {
   try {
-    const response = await fetch(`${API_BASE}/stats/${code}`);
+    const response = await fetch(`${API_BASE}/stats/${code}`, {
+      credentials: 'include'
+    });
     const data = await response.json();
     
     if (data.success) {
@@ -538,7 +546,8 @@ async function deleteUrl(id) {
   
   try {
     const response = await fetch(`${API_BASE}/urls/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      credentials: 'include'
     });
     
     const data = await response.json();

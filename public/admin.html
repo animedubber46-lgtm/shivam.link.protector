@@ -460,7 +460,9 @@
     // Check admin auth
     async function checkAuth() {
       try {
-        const response = await fetch(`${API_BASE}/auth/check`);
+        const response = await fetch(`${API_BASE}/auth/check`, {
+          credentials: 'include'
+        });
         const data = await response.json();
         
         if (!data.isAdmin) {
@@ -477,7 +479,9 @@
     // Load stats
     async function loadStats() {
       try {
-        const response = await fetch(`${API_BASE}/admin/stats`);
+        const response = await fetch(`${API_BASE}/admin/stats`, {
+          credentials: 'include'
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -498,7 +502,9 @@
       codesTable.style.display = 'none';
       
       try {
-        const response = await fetch(`${API_BASE}/admin/referral-codes`);
+        const response = await fetch(`${API_BASE}/admin/referral-codes`, {
+          credentials: 'include'
+        });
         const data = await response.json();
         
         loadingState.style.display = 'none';
@@ -539,7 +545,8 @@
       
       try {
         const response = await fetch(`${API_BASE}/admin/referral-code`, {
-          method: 'POST'
+          method: 'POST',
+          credentials: 'include'
         });
         
         const data = await response.json();
@@ -582,7 +589,8 @@
     logoutBtn.addEventListener('click', async () => {
       try {
         await fetch(`${API_BASE}/auth/logout`, {
-          method: 'POST'
+          method: 'POST',
+          credentials: 'include'
         });
         
         window.location.href = 'admin-login.html';

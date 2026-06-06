@@ -107,9 +107,6 @@ router.get('/users', isAdmin, async (req, res) => {
       // For in-memory, we need to filter out duplicates
       const seen = new Set();
       users = [];
-      for (const user of inMemoryUserOps.findOne._isMemory ? [] : []) {
-        // This won't work, let's fix it
-      }
       // Get all users from the map
       for (const [key, user] of require('../config/database').inMemoryDB.users.entries()) {
         if (!seen.has(user._id) && key === user._id) {

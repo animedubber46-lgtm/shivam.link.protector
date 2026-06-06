@@ -44,4 +44,7 @@ app.use((err, req, res, next) => {
 // Connect to database
 connectDB();
 
-module.exports = app;
+// Vercel serverless function handler
+module.exports = (req, res) => {
+  app(req, res);
+};

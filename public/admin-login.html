@@ -239,6 +239,7 @@
           headers: {
             'Content-Type': 'application/json'
           },
+          credentials: 'include',
           body: JSON.stringify({ username, password })
         });
         
@@ -266,7 +267,9 @@
     // Check if already logged in as admin
     async function checkAuth() {
       try {
-        const response = await fetch(`${API_BASE}/auth/check`);
+        const response = await fetch(`${API_BASE}/auth/check`, {
+          credentials: 'include'
+        });
         const data = await response.json();
         
         if (data.isAdmin) {

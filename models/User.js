@@ -38,9 +38,6 @@ const userSchema = new mongoose.Schema({
   autoIndex: true 
 });
 
-// Drop any old indexes that might conflict
-userSchema.index({ email: 1 }, { unique: true });
-
 // Hash password before saving
 userSchema.pre('save', function(next) {
   if (!this.isModified('password')) return next();

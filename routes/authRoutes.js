@@ -89,7 +89,12 @@ router.post('/signup', async (req, res) => {
     referral.used = true;
     referral.usedBy = newUser._id;
     referral.usedAt = new Date();
-    await referral.save();
+    if (isUsingMongoDB()) {
+      await referral.save();
+    } else {
+      inMemoryDB.referralCodes.set(referral._id, referral);
+      inMemoryDB.referralCodes.set(referral.code, referral);
+    }
 
     res.status(201).json({
       success: true,
@@ -266,12 +271,26 @@ router.get('/me', async (req, res) => {
   try {
     const userId = req.cookies.userId;
     const rememberToken = req.cookies.rememberToken;
-    const isAdmin = req.cookies.isAdmin;
+    const isAdminCookie = req.cookies.isAdmin;
 
     if (!userId && !rememberToken) {
       return res.status(401).json({
         success: false,
         error: 'Not authenticated'
+      });
+    }
+
+    // Check for admin cookie
+    if (isAdminCookie === 'true') {
+      return res.json({
+        success: true,
+        data: {
+          user: {
+            id: 'admin',
+            email: 'admin@shivam.link',
+            isAdmin: true
+          }
+        }
       });
     }
 
@@ -297,7 +316,7 @@ router.get('/me', async (req, res) => {
         user: {
           id: user._id,
           email: user.email,
-          isAdmin: isAdmin === 'true' || user.isAdmin
+          isAdmin: user.isAdmin
         }
       }
     });
@@ -315,15 +334,50 @@ router.get('/me', async (req, res) => {
  * @desc    Check if user is authenticated
  * @access  Public
  */
-router.get('/check', (req, res) => {
+router.get('/check', async (req, res) => {
   const userId = req.cookies.userId;
   const rememberToken = req.cookies.rememberToken;
-  const isAdmin = req.cookies.isAdmin;
+  const isAdminCookie = req.cookies.isAdmin;
+
+  if (!userId && !rememberToken) {
+    return res.json({
+      success: true,
+      authenticated: false,
+      isAdmin: false
+    });
+  }
+
+  // Check for admin cookie first
+  if (isAdminCookie === 'true') {
+    return res.json({
+      success: true,
+      authenticated: true,
+      isAdmin: true
+    });
+  }
+
+  // Verify user exists in database
+  const userDb = getUserDb();
+  let user;
+
+  if (userId) {
+    user = await userDb.findById(userId);
+  } else if (rememberToken) {
+    user = await userDb.findOne({ rememberToken });
+  }
+
+  if (!user) {
+    return res.json({
+      success: true,
+      authenticated: false,
+      isAdmin: false
+    });
+  }
 
   res.json({
     success: true,
-    authenticated: !!(userId || rememberToken),
-    isAdmin: isAdmin === 'true'
+    authenticated: true,
+    isAdmin: user.isAdmin === true
   });
 });
 
